@@ -1,0 +1,63 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Distribution
+*.whl
+*.tar.gz
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# Local data
+*.sqlite3
+*.db
+
+# Alembic
+# (keep migration scripts, ignore generated)
+
+# Docker volumes (local)
+postgres_data/
+redis_data/
+minio_data/
+rabbitmq_data/

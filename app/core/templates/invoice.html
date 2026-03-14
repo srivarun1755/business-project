@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tax Invoice {{ inv.invoice_number }}</title>
+<style>
+  body { font-family: 'Arial', sans-serif; font-size: 12px; color: #333; margin: 0; padding: 20px; }
+  h1 { font-size: 20px; text-align: center; margin-bottom: 4px; }
+  h2 { font-size: 14px; text-align: center; margin-top: 0; color: #555; }
+  .header-box { border: 2px solid #333; padding: 10px; margin-bottom: 16px; }
+  .two-col { display: flex; justify-content: space-between; }
+  .col { width: 48%; }
+  .col h3 { font-size: 12px; text-transform: uppercase; color: #555; margin-bottom: 4px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th { background: #1a1a2e; color: #fff; padding: 8px 6px; text-align: left; font-size: 11px; }
+  td { padding: 6px; border-bottom: 1px solid #ddd; font-size: 11px; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .text-right { text-align: right; }
+  .totals { margin-top: 16px; }
+  .totals table { width: 300px; margin-left: auto; }
+  .totals td { border: none; padding: 4px 8px; }
+  .totals .grand-total { font-weight: bold; font-size: 14px; border-top: 2px solid #333; }
+  .footer { margin-top: 32px; font-size: 10px; color: #888; text-align: center; }
+  .badge-igst { color: #b5451b; font-weight: bold; }
+  .badge-cgst { color: #1a5276; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="header-box">
+  <h1>TAX INVOICE</h1>
+  <h2>GST Invoice</h2>
+  <div class="two-col" style="margin-top:8px;">
+    <div>
+      <strong>Invoice No:</strong> {{ inv.invoice_number }}<br>
+      <strong>Date:</strong> {{ inv.invoice_date.strftime('%d-%m-%Y') }}<br>
+      {% if inv.due_date %}<strong>Due Date:</strong> {{ inv.due_date.strftime('%d-%m-%Y') }}<br>{% endif %}
+    </div>
+    <div class="text-right">
+      {% if inv.is_inter_state %}
+        <span class="badge-igst">INTER-STATE (IGST)</span>
+      {% else %}
+        <span class="badge-cgst">INTRA-STATE (CGST+SGST)</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col">
+    <h3>Seller</h3>
+    <strong>{{ inv.seller_name }}</strong><br>
+    {{ inv.seller_address }}<br>
+    <strong>GSTIN:</strong> {{ inv.seller_gstin }}<br>
+    <strong>State:</strong> {{ inv.seller_state }}
+  </div>
+  <div class="col">
+    <h3>Buyer (Bill To)</h3>
+    <strong>{{ inv.buyer_name }}</strong><br>
+    {{ inv.buyer_address }}<br>
+    {% if inv.buyer_gstin %}<strong>GSTIN:</strong> {{ inv.buyer_gstin }}<br>{% endif %}
+    <strong>State:</strong> {{ inv.buyer_state }}
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Description</th>
+      <th>HSN/SAC</th>
+      <th>Qty</th>
+      <th>Unit</th>
+      <th class="text-right">Rate (₹)</th>
+      <th class="text-right">Taxable (₹)</th>
+      {% if inv.is_inter_state %}
+        <th class="text-right">IGST %</th>
+        <th class="text-right">IGST (₹)</th>
+      {% else %}
+        <th class="text-right">CGST %</th>
+        <th class="text-right">CGST (₹)</th>
+        <th class="text-right">SGST %</th>
+        <th class="text-right">SGST (₹)</th>
+      {% endif %}
+      <th class="text-right">Total (₹)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in inv.items %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ item.product_name }}</td>
+      <td>{{ item.hsn_code }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.unit }}</td>
+      <td class="text-right">{{ item.unit_price | currency }}</td>
+      <td class="text-right">{{ item.subtotal | currency }}</td>
+      {% if inv.is_inter_state %}
+        <td class="text-right">{{ item.igst_rate | pct }}</td>
+        <td class="text-right">{{ item.igst_amount | currency }}</td>
+      {% else %}
+        <td class="text-right">{{ item.cgst_rate | pct }}</td>
+        <td class="text-right">{{ item.cgst_amount | currency }}</td>
+        <td class="text-right">{{ item.sgst_rate | pct }}</td>
+        <td class="text-right">{{ item.sgst_amount | currency }}</td>
+      {% endif %}
+      <td class="text-right">{{ item.total_price | currency }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="totals">
+  <table>
+    <tr>
+      <td>Subtotal</td>
+      <td class="text-right">{{ inv.subtotal | currency }}</td>
+    </tr>
+    {% if inv.is_inter_state %}
+    <tr>
+      <td>IGST</td>
+      <td class="text-right">{{ inv.igst_amount | currency }}</td>
+    </tr>
+    {% else %}
+    <tr>
+      <td>CGST</td>
+      <td class="text-right">{{ inv.cgst_amount | currency }}</td>
+    </tr>
+    <tr>
+      <td>SGST</td>
+      <td class="text-right">{{ inv.sgst_amount | currency }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td><strong>Total Tax</strong></td>
+      <td class="text-right"><strong>{{ inv.total_tax | currency }}</strong></td>
+    </tr>
+    <tr class="grand-total">
+      <td>Grand Total</td>
+      <td class="text-right">{{ inv.total_amount | currency }}</td>
+    </tr>
+    {% if inv.amount_paid > 0 %}
+    <tr>
+      <td>Amount Paid</td>
+      <td class="text-right">{{ inv.amount_paid | currency }}</td>
+    </tr>
+    <tr>
+      <td><strong>Amount Due</strong></td>
+      <td class="text-right"><strong>{{ inv.amount_due | currency }}</strong></td>
+    </tr>
+    {% endif %}
+  </table>
+</div>
+
+{% if inv.notes %}
+<div style="margin-top: 16px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
+  <strong>Notes:</strong> {{ inv.notes }}
+</div>
+{% endif %}
+
+<div class="footer">
+  This is a computer-generated invoice. No physical signature required.<br>
+  Subject to jurisdiction of {{ inv.seller_state }}.
+</div>
+
+</body>
+</html>
