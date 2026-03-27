@@ -24,3 +24,6 @@ pytest-mock==3.14.0
 anyio==4.3.0
 reportlab==4.2.2
 aiobotocore==2.13.0
+numpy>=1.26.0
+Pillow>=10.0.0
+scikit-learn>=1.4.0
