@@ -18,6 +18,7 @@ from app.routers import (
     invoices_router,
     payments_router,
     inventory_router,
+    reference_photos_router,
 )
 
 settings = get_settings()
@@ -80,6 +81,7 @@ app.include_router(products_router)
 app.include_router(invoices_router)
 app.include_router(payments_router)
 app.include_router(inventory_router)
+app.include_router(reference_photos_router)
 
 
 @app.get("/health", tags=["Health"])

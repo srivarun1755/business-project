@@ -5,6 +5,7 @@ from app.routers.products import router as products_router
 from app.routers.invoices import router as invoices_router
 from app.routers.payments import router as payments_router
 from app.routers.inventory import router as inventory_router
+from app.routers.reference_photos import router as reference_photos_router
 
 __all__ = [
     "webhook_router",
@@ -14,4 +15,5 @@ __all__ = [
     "invoices_router",
     "payments_router",
     "inventory_router",
+    "reference_photos_router",
 ]
